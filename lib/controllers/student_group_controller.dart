@@ -5,9 +5,11 @@ import '../services/database_service.dart';
 class StudentGroupController extends GetxController {
   final _groups = <StudentGroup>[].obs;
   final _selectedGroup = Rxn<StudentGroup>();
+  final _groupStudentCounts = <int, int>{}.obs;
 
   List<StudentGroup> get groups => _groups;
   StudentGroup? get selectedGroup => _selectedGroup.value;
+  int getStudentCount(int groupId) => _groupStudentCounts[groupId] ?? 0;
 
   @override
   void onInit() {
@@ -18,6 +20,15 @@ class StudentGroupController extends GetxController {
   Future<void> loadGroups() async {
     final groups = await DatabaseService.instance.getAllStudentGroups();
     _groups.assignAll(groups);
+    
+    // 각 그룹의 학생 수를 로드합니다
+    for (final group in groups) {
+      if (group.id != null) {
+        final count = await DatabaseService.instance.getStudentCountByGroup(group.id!);
+        _groupStudentCounts[group.id!] = count;
+      }
+    }
+    _groupStudentCounts.refresh();
   }
 
   Future<void> addGroup(String name, {String? description}) async {

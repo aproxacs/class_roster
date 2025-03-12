@@ -277,4 +277,13 @@ class DatabaseService {
       whereArgs: [id],
     );
   }
+
+  Future<int> getStudentCountByGroup(int groupId) async {
+    final db = await database;
+    final result = await db.rawQuery(
+      'SELECT COUNT(*) as count FROM students WHERE group_id = ?',
+      [groupId],
+    );
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
 } 
