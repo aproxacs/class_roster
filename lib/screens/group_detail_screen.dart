@@ -36,8 +36,8 @@ class GroupDetailScreen extends StatelessWidget {
                 group.name,
               );
               Get.snackbar(
-                '알림',
-                'CSV 파일이 다운로드되었습니다.',
+                'notification'.tr,
+                'csv_downloaded'.tr,
                 snackPosition: SnackPosition.BOTTOM,
               );
             },
@@ -74,23 +74,23 @@ class GroupDetailScreen extends StatelessWidget {
                             
                             Get.dialog(
                               AlertDialog(
-                                title: const Text('학생 정보 수정'),
+                                title: Text('edit_student'.tr),
                                 content: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     TextField(
                                       controller: nameController,
-                                      decoration: const InputDecoration(
-                                        labelText: '이름',
-                                        hintText: '학생 이름을 입력하세요',
+                                      decoration: InputDecoration(
+                                        labelText: 'student_name'.tr,
+                                        hintText: 'enter_student_name'.tr,
                                       ),
                                     ),
                                     const SizedBox(height: 8),
                                     TextField(
                                       controller: studentIdController,
-                                      decoration: const InputDecoration(
-                                        labelText: '학번',
-                                        hintText: '학번을 입력하세요',
+                                      decoration: InputDecoration(
+                                        labelText: 'student_id'.tr,
+                                        hintText: 'enter_student_id'.tr,
                                       ),
                                     ),
                                   ],
@@ -98,14 +98,14 @@ class GroupDetailScreen extends StatelessWidget {
                                 actions: [
                                   TextButton(
                                     onPressed: () => Get.back(),
-                                    child: const Text('취소'),
+                                    child: Text('cancel'.tr),
                                   ),
                                   TextButton(
                                     onPressed: () {
                                       if (nameController.text.isEmpty) {
                                         Get.snackbar(
-                                          '오류',
-                                          '이름을 입력해주세요.',
+                                          'error'.tr,
+                                          'enter_student_name_error'.tr,
                                           snackPosition: SnackPosition.BOTTOM,
                                         );
                                         return;
@@ -121,7 +121,7 @@ class GroupDetailScreen extends StatelessWidget {
                                       studentController.updateStudent(updatedStudent);
                                       Get.back();
                                     },
-                                    child: const Text('저장'),
+                                    child: Text('save'.tr),
                                   ),
                                 ],
                               ),
@@ -133,19 +133,19 @@ class GroupDetailScreen extends StatelessWidget {
                           onPressed: () {
                             Get.dialog(
                               AlertDialog(
-                                title: const Text('학생 삭제'),
-                                content: Text('${student.name}을(를) 삭제하시겠습니까?'),
+                                title: Text('delete_student'.tr),
+                                content: Text('delete_student_confirm'.trParams({'name': student.name})),
                                 actions: [
                                   TextButton(
                                     onPressed: () => Get.back(),
-                                    child: const Text('취소'),
+                                    child: Text('cancel'.tr),
                                   ),
                                   TextButton(
                                     onPressed: () {
                                       studentController.deleteStudent(student.id!);
                                       Get.back();
                                     },
-                                    child: const Text('삭제'),
+                                    child: Text('delete'.tr),
                                   ),
                                 ],
                               ),
@@ -171,20 +171,20 @@ class GroupDetailScreen extends StatelessWidget {
                       
                       Get.dialog(
                         AlertDialog(
-                          title: const Text('새 학생 추가'),
+                          title: Text('add_student'.tr),
                           content: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               TextField(
                                 controller: nameController,
-                                decoration: const InputDecoration(
-                                  labelText: '이름',
+                                decoration: InputDecoration(
+                                  labelText: 'student_name'.tr,
                                 ),
                               ),
                               TextField(
                                 controller: idController,
-                                decoration: const InputDecoration(
-                                  labelText: '학번 (선택사항)',
+                                decoration: InputDecoration(
+                                  labelText: 'student_id_optional'.tr,
                                 ),
                               ),
                             ],
@@ -192,7 +192,7 @@ class GroupDetailScreen extends StatelessWidget {
                           actions: [
                             TextButton(
                               onPressed: () => Get.back(),
-                              child: const Text('취소'),
+                              child: Text('cancel'.tr),
                             ),
                             TextButton(
                               onPressed: () {
@@ -207,13 +207,13 @@ class GroupDetailScreen extends StatelessWidget {
                                   Get.back();
                                 }
                               },
-                              child: const Text('추가'),
+                              child: Text('add'.tr),
                             ),
                           ],
                         ),
                       );
                     },
-                    child: const Text('학생 추가'),
+                    child: Text('add_student'.tr),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -222,8 +222,8 @@ class GroupDetailScreen extends StatelessWidget {
                     onPressed: () {
                       if (studentController.students.isEmpty) {
                         Get.snackbar(
-                          '알림',
-                          '학생이 없습니다. 먼저 학생을 추가해주세요.',
+                          'notification'.tr,
+                          'no_students'.tr,
                           snackPosition: SnackPosition.BOTTOM,
                         );
                         return;
@@ -234,15 +234,15 @@ class GroupDetailScreen extends StatelessWidget {
                       );
                       Get.dialog(
                         AlertDialog(
-                          title: const Text('새 출석부'),
+                          title: Text('new_attendance'.tr),
                           content: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               TextField(
                                 controller: titleController,
-                                decoration: const InputDecoration(
-                                  labelText: '출석부 제목',
-                                  hintText: '예) 3월 첫째주 출석',
+                                decoration: InputDecoration(
+                                  labelText: 'attendance_title'.tr,
+                                  hintText: 'attendance_title_hint'.tr,
                                 ),
                                 autofocus: true,
                               ),
@@ -251,32 +251,26 @@ class GroupDetailScreen extends StatelessWidget {
                           actions: [
                             TextButton(
                               onPressed: () => Get.back(),
-                              child: const Text('취소'),
+                              child: Text('cancel'.tr),
                             ),
                             TextButton(
-                              onPressed: () async {
+                              onPressed: () {
                                 if (titleController.text.isNotEmpty) {
-                                  await rosterController.createRoster(
+                                  rosterController.createRoster(
                                     titleController.text,
                                     studentController.students,
                                   );
                                   Get.back();
-                                  Get.to(() => const AttendanceHistoryScreen());
-                                } else {
-                                  Get.snackbar(
-                                    '알림',
-                                    '출석부 제목을 입력해주세요.',
-                                    snackPosition: SnackPosition.BOTTOM,
-                                  );
+                                  Get.off(() => const AttendanceHistoryScreen());
                                 }
                               },
-                              child: const Text('생성'),
+                              child: Text('create'.tr),
                             ),
                           ],
                         ),
                       );
                     },
-                    child: const Text('출석부 생성'),
+                    child: Text('new_attendance'.tr),
                   ),
                 ),
               ],

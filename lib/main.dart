@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'screens/home_screen.dart';
+import 'translations/messages.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,7 +13,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: '출석부',
+      title: 'app_title'.tr,
+      translations: Messages(),
+      locale: Get.deviceLocale,
+      fallbackLocale: const Locale('ko', 'KR'),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.blue,

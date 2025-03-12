@@ -33,7 +33,9 @@ class AttendanceScreen extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  currentRoster.status == RosterStatus.open ? '진행 중' : '종료됨',
+                  currentRoster.status == RosterStatus.open
+                      ? 'in_progress'.tr
+                      : 'completed'.tr,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
@@ -50,19 +52,19 @@ class AttendanceScreen extends StatelessWidget {
                 onPressed: () {
                   Get.dialog(
                     AlertDialog(
-                      title: const Text('출석부 종료'),
-                      content: const Text('출석부를 종료하시겠습니까?\n종료 후에는 수정할 수 없습니다.'),
+                      title: Text('close_attendance'.tr),
+                      content: Text('close_attendance_confirm'.tr),
                       actions: [
                         TextButton(
                           onPressed: () => Get.back(),
-                          child: const Text('취소'),
+                          child: Text('cancel'.tr),
                         ),
                         TextButton(
                           onPressed: () {
                             controller.closeRoster(roster);
                             Get.back();
                           },
-                          child: const Text('종료'),
+                          child: Text('close'.tr),
                         ),
                       ],
                     ),
@@ -82,8 +84,8 @@ class AttendanceScreen extends StatelessWidget {
                     '${roster.title}_${roster.date.toString().split(' ')[0]}',
                   );
                   Get.snackbar(
-                    '알림',
-                    'CSV 파일이 다운로드되었습니다.',
+                    'notification'.tr,
+                    'csv_downloaded'.tr,
                     snackPosition: SnackPosition.BOTTOM,
                   );
                 },
@@ -114,8 +116,11 @@ class AttendanceScreen extends StatelessWidget {
                       controller.updateStudentStatus(student, newStatus);
                     }
                   : null,
-              child: Card(
-                color: _getStatusColor(student.status),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: _getStatusColor(student.status),
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -184,13 +189,13 @@ class AttendanceScreen extends StatelessWidget {
   String _getStatusText(AttendanceStatus status) {
     switch (status) {
       case AttendanceStatus.present:
-        return '출석';
+        return 'present'.tr;
       case AttendanceStatus.absent:
-        return '결석';
+        return 'absent'.tr;
       case AttendanceStatus.late:
-        return '지각';
+        return 'late'.tr;
       case AttendanceStatus.excused:
-        return '사유';
+        return 'excused'.tr;
     }
   }
 } 

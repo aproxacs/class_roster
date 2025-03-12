@@ -23,7 +23,7 @@ class AttendanceHistoryScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('출석부'),
+        title: Text('attendance'.tr),
         centerTitle: true,
         actions: [
           IconButton(
@@ -34,14 +34,14 @@ class AttendanceHistoryScreen extends StatelessWidget {
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text('새 출석부'),
+                  title: Text('new_attendance'.tr),
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Obx(
                         () => DropdownButton<int>(
                           isExpanded: true,
-                          hint: const Text('그룹 선택'),
+                          hint: Text('select_group'.tr),
                           value: groupController.selectedGroup?.id,
                           items: groupController.groups.map((group) {
                             return DropdownMenuItem(
@@ -61,9 +61,9 @@ class AttendanceHistoryScreen extends StatelessWidget {
                       const SizedBox(height: 16),
                       TextField(
                         controller: titleController,
-                        decoration: const InputDecoration(
-                          labelText: '출석부 제목',
-                          hintText: '예) 3월 첫째주 출석',
+                        decoration: InputDecoration(
+                          labelText: 'attendance_title'.tr,
+                          hintText: 'attendance_title_hint'.tr,
                         ),
                         autofocus: true,
                       ),
@@ -72,14 +72,14 @@ class AttendanceHistoryScreen extends StatelessWidget {
                   actions: [
                     TextButton(
                       onPressed: () => Get.back(),
-                      child: const Text('취소'),
+                      child: Text('cancel'.tr),
                     ),
                     TextButton(
                       onPressed: () async {
                         if (groupController.selectedGroup == null) {
                           Get.snackbar(
-                            '알림',
-                            '그룹을 선택해주세요.',
+                            'notification'.tr,
+                            'select_group_first'.tr,
                             snackPosition: SnackPosition.BOTTOM,
                           );
                           return;
@@ -87,8 +87,8 @@ class AttendanceHistoryScreen extends StatelessWidget {
                         
                         if (titleController.text.isEmpty) {
                           Get.snackbar(
-                            '알림',
-                            '출석부 제목을 입력해주세요.',
+                            'notification'.tr,
+                            'enter_title'.tr,
                             snackPosition: SnackPosition.BOTTOM,
                           );
                           return;
@@ -103,7 +103,7 @@ class AttendanceHistoryScreen extends StatelessWidget {
                         );
                         Get.back();
                       },
-                      child: const Text('생성'),
+                      child: Text('create'.tr),
                     ),
                   ],
                 ),
@@ -116,8 +116,8 @@ class AttendanceHistoryScreen extends StatelessWidget {
         () {
           final sheets = rosterController.rosters;
           if (sheets.isEmpty) {
-            return const Center(
-              child: Text('출석부가 없습니다.'),
+            return Center(
+              child: Text('no_attendance'.tr),
             );
           }
 
@@ -140,18 +140,18 @@ class AttendanceHistoryScreen extends StatelessWidget {
                 confirmDismiss: (direction) async {
                   return await Get.dialog<bool>(
                     AlertDialog(
-                      title: const Text('출석부 삭제'),
-                      content: const Text('이 출석부를 삭제하시겠습니까?\n삭제된 출석부는 복구할 수 없습니다.'),
+                      title: Text('delete_attendance'.tr),
+                      content: Text('delete_attendance_confirm'.tr),
                       actions: [
                         TextButton(
                           onPressed: () => Get.back(result: false),
-                          child: const Text('취소'),
+                          child: Text('cancel'.tr),
                         ),
                         TextButton(
                           onPressed: () => Get.back(result: true),
-                          child: const Text(
-                            '삭제',
-                            style: TextStyle(color: Colors.red),
+                          child: Text(
+                            'delete'.tr,
+                            style: const TextStyle(color: Colors.red),
                           ),
                         ),
                       ],
@@ -189,8 +189,8 @@ class AttendanceHistoryScreen extends StatelessWidget {
                       ),
                       child: Text(
                         roster.status == RosterStatus.open
-                            ? '진행 중'
-                            : '종료됨',
+                            ? 'in_progress'.tr
+                            : 'completed'.tr,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12.0,

@@ -12,7 +12,7 @@ class GroupListScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('학생 그룹'),
+        title: Text('student_groups'.tr),
         centerTitle: true,
       ),
       body: Obx(
@@ -69,7 +69,7 @@ class GroupListScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  '${controller.getStudentCount(group.id!)}명',
+                                  'student_count'.trParams({'count': controller.getStudentCount(group.id!).toString()}),
                                   style: const TextStyle(
                                     color: Colors.blue,
                                     fontWeight: FontWeight.w500,
@@ -88,21 +88,21 @@ class GroupListScreen extends StatelessWidget {
                   onPressed: () {
                     Get.dialog(
                       AlertDialog(
-                        title: const Text('그룹 삭제'),
-                        content: const Text('이 그룹을 삭제하시겠습니까?'),
+                        title: Text('delete_group'.tr),
+                        content: Text('delete_group_confirm'.tr),
                         actions: [
                           TextButton(
                             onPressed: () => Get.back(),
-                            child: const Text('취소'),
+                            child: Text('cancel'.tr),
                           ),
                           TextButton(
                             onPressed: () {
                               controller.deleteGroup(group.id!);
                               Get.back();
                             },
-                            child: const Text(
-                              '삭제',
-                              style: TextStyle(color: Colors.red),
+                            child: Text(
+                              'delete'.tr,
+                              style: const TextStyle(color: Colors.red),
                             ),
                           ),
                         ],
@@ -126,20 +126,20 @@ class GroupListScreen extends StatelessWidget {
           
           Get.dialog(
             AlertDialog(
-              title: const Text('새 그룹 추가'),
+              title: Text('new_group'.tr),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
                     controller: nameController,
-                    decoration: const InputDecoration(
-                      labelText: '그룹 이름',
+                    decoration: InputDecoration(
+                      labelText: 'group_name'.tr,
                     ),
                   ),
                   TextField(
                     controller: descController,
-                    decoration: const InputDecoration(
-                      labelText: '설명 (선택사항)',
+                    decoration: InputDecoration(
+                      labelText: 'description_optional'.tr,
                     ),
                   ),
                 ],
@@ -147,7 +147,7 @@ class GroupListScreen extends StatelessWidget {
               actions: [
                 TextButton(
                   onPressed: () => Get.back(),
-                  child: const Text('취소'),
+                  child: Text('cancel'.tr),
                 ),
                 TextButton(
                   onPressed: () {
@@ -161,7 +161,7 @@ class GroupListScreen extends StatelessWidget {
                       Get.back();
                     }
                   },
-                  child: const Text('추가'),
+                  child: Text('add'.tr),
                 ),
               ],
             ),

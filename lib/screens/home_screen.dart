@@ -21,14 +21,14 @@ class HomeScreen extends StatelessWidget {
         () => BottomNavigationBar(
           currentIndex: selectedIndex.value,
           onTap: (index) => selectedIndex.value = index,
-          items: const [
+          items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_today),
-              label: '출석부',
+              icon: const Icon(Icons.calendar_today),
+              label: 'attendance'.tr,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.group),
-              label: '학생 그룹',
+              icon: const Icon(Icons.group),
+              label: 'student_groups'.tr,
             ),
           ],
         ),
