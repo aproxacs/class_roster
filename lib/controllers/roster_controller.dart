@@ -18,10 +18,11 @@ class RosterController extends GetxController {
     _rosters.assignAll(sheets);
   }
 
-  Future<void> createRoster(String title, List<Student> students) async {
+  Future<void> createRoster(String title, List<Student> students, String groupName) async {
     final roster = Roster(
       title: title,
       date: DateTime.now(),
+      groupName: groupName,
     );
     final savedRoster = await DatabaseService.instance.createRoster(roster);
     _rosters.add(savedRoster);

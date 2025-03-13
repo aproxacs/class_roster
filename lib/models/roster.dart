@@ -15,12 +15,14 @@ class Roster {
   final String title;
   final DateTime date;
   final RosterStatus status;
+  final String groupName;
 
   Roster({
     this.id,
     required this.title,
     required this.date,
     this.status = RosterStatus.open,
+    required this.groupName,
   });
 
   Roster copyWith({
@@ -28,12 +30,14 @@ class Roster {
     String? title,
     DateTime? date,
     RosterStatus? status,
+    String? groupName,
   }) {
     return Roster(
       id: id ?? this.id,
       title: title ?? this.title,
       date: date ?? this.date,
       status: status ?? this.status,
+      groupName: groupName ?? this.groupName,
     );
   }
 
@@ -43,6 +47,7 @@ class Roster {
       'title': title,
       'date': date.toIso8601String(),
       'status': status.toString().split('.').last,
+      'group_name': groupName,
     };
   }
 
@@ -55,6 +60,7 @@ class Roster {
         (e) => e.toString().split('.').last == map['status'],
         orElse: () => RosterStatus.open,
       ),
+      groupName: map['group_name'],
     );
   }
 }

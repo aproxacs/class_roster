@@ -100,6 +100,7 @@ class AttendanceHistoryScreen extends StatelessWidget {
                         await rosterController.createRoster(
                           titleController.text,
                           students,
+                          groupController.selectedGroup!.name,
                         );
                         Get.back();
                       },
@@ -122,6 +123,7 @@ class AttendanceHistoryScreen extends StatelessWidget {
           }
 
           return ListView.builder(
+            padding: const EdgeInsets.only(top: 16.0),
             itemCount: sheets.length,
             itemBuilder: (context, index) {
               final roster = sheets[index];
@@ -173,8 +175,19 @@ class AttendanceHistoryScreen extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    subtitle: Text(
-                      roster.date.toString().split(' ')[0],
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(roster.groupName),
+                            const SizedBox(width: 8),
+                            Text('·'),
+                            const SizedBox(width: 8),
+                            Text(roster.date.toString().split(' ')[0]),
+                          ],
+                        ),
+                      ],
                     ),
                     trailing: Container(
                       padding: const EdgeInsets.symmetric(

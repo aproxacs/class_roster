@@ -23,7 +23,7 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
       onOpen: (db) async {
@@ -80,6 +80,36 @@ class DatabaseService {
         )
       ''');
     }
+
+    if (oldVersion < 4) {
+      // rosters 테이블 재생성
+      await db.execute('DROP TABLE IF EXISTS roster_students');
+      await db.execute('DROP TABLE IF EXISTS rosters');
+      
+      await db.execute('''
+        CREATE TABLE rosters (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          title TEXT NOT NULL,
+          date TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'open',
+          group_name TEXT NOT NULL,
+          created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+      ''');
+
+      await db.execute('''
+        CREATE TABLE roster_students (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          roster_id INTEGER NOT NULL,
+          name TEXT NOT NULL,
+          student_id TEXT,
+          status TEXT NOT NULL DEFAULT 'absent',
+          created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (roster_id) REFERENCES rosters (id)
+            ON DELETE CASCADE
+        )
+      ''');
+    }
   }
 
   Future<void> _createDB(Database db, int version) async {
@@ -110,6 +140,7 @@ class DatabaseService {
         title TEXT NOT NULL,
         date TEXT NOT NULL,
         status TEXT NOT NULL DEFAULT 'open',
+        group_name TEXT NOT NULL,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
       )
     ''');

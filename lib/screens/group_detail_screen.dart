@@ -259,6 +259,7 @@ class GroupDetailScreen extends StatelessWidget {
                                   rosterController.createRoster(
                                     titleController.text,
                                     studentController.students,
+                                    group.name,
                                   );
                                   Get.back();
                                   Get.off(() => const AttendanceHistoryScreen());

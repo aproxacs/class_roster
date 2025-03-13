@@ -19,15 +19,25 @@ class MyApp extends StatelessWidget {
       fallbackLocale: const Locale('ko', 'KR'),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
+          seedColor: const Color(0xFF0079FF),
           brightness: Brightness.light,
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF0079FF),
+          foregroundColor: Colors.white,
+          elevation: 0,
         ),
         useMaterial3: true,
       ),
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
+          seedColor: const Color(0xFF0079FF),
           brightness: Brightness.dark,
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF0079FF),
+          foregroundColor: Colors.white,
+          elevation: 0,
         ),
         useMaterial3: true,
       ),
