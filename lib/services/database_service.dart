@@ -23,93 +23,12 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 4,
+      version: 1,
       onCreate: _createDB,
-      onUpgrade: _onUpgrade,
       onOpen: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
     );
-  }
-
-  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 2) {
-      // 기존 테이블 삭제
-      await db.execute('DROP TABLE IF EXISTS attendance_records');
-      await db.execute('DROP TABLE IF EXISTS attendance_students');
-      await db.execute('DROP TABLE IF EXISTS attendance_sheets');
-
-      // 새로운 테이블 생성
-      await db.execute('''
-        CREATE TABLE rosters (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          title TEXT NOT NULL,
-          date TEXT NOT NULL,
-          status TEXT NOT NULL DEFAULT 'open',
-          created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        )
-      ''');
-
-      await db.execute('''
-        CREATE TABLE roster_students (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          roster_id INTEGER NOT NULL,
-          name TEXT NOT NULL,
-          student_id TEXT,
-          status TEXT NOT NULL DEFAULT 'absent',
-          created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (roster_id) REFERENCES rosters (id)
-            ON DELETE CASCADE
-        )
-      ''');
-    }
-    
-    if (oldVersion < 3) {
-      // roster_students 테이블 재생성
-      await db.execute('DROP TABLE IF EXISTS roster_students');
-      await db.execute('''
-        CREATE TABLE roster_students (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          roster_id INTEGER NOT NULL,
-          name TEXT NOT NULL,
-          student_id TEXT,
-          status TEXT NOT NULL DEFAULT 'absent',
-          created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (roster_id) REFERENCES rosters (id)
-            ON DELETE CASCADE
-        )
-      ''');
-    }
-
-    if (oldVersion < 4) {
-      // rosters 테이블 재생성
-      await db.execute('DROP TABLE IF EXISTS roster_students');
-      await db.execute('DROP TABLE IF EXISTS rosters');
-      
-      await db.execute('''
-        CREATE TABLE rosters (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          title TEXT NOT NULL,
-          date TEXT NOT NULL,
-          status TEXT NOT NULL DEFAULT 'open',
-          group_name TEXT NOT NULL,
-          created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        )
-      ''');
-
-      await db.execute('''
-        CREATE TABLE roster_students (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          roster_id INTEGER NOT NULL,
-          name TEXT NOT NULL,
-          student_id TEXT,
-          status TEXT NOT NULL DEFAULT 'absent',
-          created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (roster_id) REFERENCES rosters (id)
-            ON DELETE CASCADE
-        )
-      ''');
-    }
   }
 
   Future<void> _createDB(Database db, int version) async {
