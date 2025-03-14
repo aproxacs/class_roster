@@ -31,6 +31,11 @@ class StudentGroupController extends GetxController {
     _groupStudentCounts.refresh();
   }
 
+  void updateStudentCount(int groupId, int count) {
+    _groupStudentCounts[groupId] = count;
+    _groupStudentCounts.refresh();
+  }
+
   Future<void> addGroup(String name, {String? description}) async {
     final group = StudentGroup(
       name: name,

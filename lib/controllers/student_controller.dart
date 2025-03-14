@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import '../models/student.dart';
 import '../services/database_service.dart';
 import '../services/csv_service.dart';
+import 'student_group_controller.dart';
 
 class StudentController extends GetxController {
   final _students = <Student>[].obs;
@@ -22,6 +23,11 @@ class StudentController extends GetxController {
     );
     final savedStudent = await DatabaseService.instance.createStudent(student);
     _students.add(savedStudent);
+    
+    // 학생 수 업데이트
+    final groupController = Get.find<StudentGroupController>();
+    final count = await DatabaseService.instance.getStudentCountByGroup(groupId);
+    groupController.updateStudentCount(groupId, count);
   }
 
   Future<void> updateStudent(Student student) async {
@@ -34,8 +40,14 @@ class StudentController extends GetxController {
   }
 
   Future<void> deleteStudent(int id) async {
+    final student = _students.firstWhere((s) => s.id == id);
     await DatabaseService.instance.deleteStudent(id);
     _students.removeWhere((student) => student.id == id);
+    
+    // 학생 수 업데이트
+    final groupController = Get.find<StudentGroupController>();
+    final count = await DatabaseService.instance.getStudentCountByGroup(student.groupId);
+    groupController.updateStudentCount(student.groupId, count);
   }
 
   Future<void> importStudentsFromCsv(int groupId) async {

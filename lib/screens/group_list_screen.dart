@@ -14,6 +14,71 @@ class GroupListScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('student_groups'.tr),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              final nameController = TextEditingController();
+              final descriptionController = TextEditingController();
+              
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text('new_group'.tr),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        controller: nameController,
+                        decoration: InputDecoration(
+                          labelText: 'group_name'.tr,
+                          hintText: 'group_name'.tr,
+                        ),
+                        autofocus: true,
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: descriptionController,
+                        decoration: InputDecoration(
+                          labelText: 'description_optional'.tr,
+                          hintText: 'description_optional'.tr,
+                        ),
+                        maxLines: 3,
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Get.back(),
+                      child: Text('cancel'.tr),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        if (nameController.text.isEmpty) {
+                          Get.snackbar(
+                            'notification'.tr,
+                            'enter_student_name_error'.tr,
+                            snackPosition: SnackPosition.BOTTOM,
+                          );
+                          return;
+                        }
+                        
+                        controller.addGroup(
+                          nameController.text,
+                          description: descriptionController.text.isEmpty
+                              ? null
+                              : descriptionController.text,
+                        );
+                        Get.back();
+                      },
+                      child: Text('create'.tr),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Obx(
         () => ListView.builder(
@@ -27,60 +92,25 @@ class GroupListScreen extends StatelessWidget {
                 vertical: 8.0,
               ),
               child: ListTile(
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 8.0,
-                ),
                 title: Text(
                   group.name,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
                   ),
                 ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (group.description != null && group.description!.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4.0),
-                        child: Text(group.description!),
-                      ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0,
-                              vertical: 4.0,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.person,
-                                  size: 16,
-                                  color: Colors.blue,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'student_count'.trParams({'count': controller.getStudentCount(group.id!).toString()}),
-                                  style: const TextStyle(
-                                    color: Colors.blue,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
+                    if (group.description != null)
+                      Text(group.description!),
+                    const SizedBox(height: 4),
+                    Obx(() => Text(
+                          'student_count'.trParams({'count': controller.getStudentCount(group.id!).toString()}),
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontSize: 12,
                           ),
-                        ],
-                      ),
-                    ),
+                        )),
                   ],
                 ),
                 trailing: IconButton(
@@ -111,63 +141,12 @@ class GroupListScreen extends StatelessWidget {
                   },
                 ),
                 onTap: () {
-                  controller.selectGroup(group);
                   Get.to(() => GroupDetailScreen(group: group));
                 },
               ),
             );
           },
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          final nameController = TextEditingController();
-          final descController = TextEditingController();
-          
-          Get.dialog(
-            AlertDialog(
-              title: Text('new_group'.tr),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: nameController,
-                    decoration: InputDecoration(
-                      labelText: 'group_name'.tr,
-                    ),
-                  ),
-                  TextField(
-                    controller: descController,
-                    decoration: InputDecoration(
-                      labelText: 'description_optional'.tr,
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Get.back(),
-                  child: Text('cancel'.tr),
-                ),
-                TextButton(
-                  onPressed: () {
-                    if (nameController.text.isNotEmpty) {
-                      controller.addGroup(
-                        nameController.text,
-                        description: descController.text.isEmpty
-                            ? null
-                            : descController.text,
-                      );
-                      Get.back();
-                    }
-                  },
-                  child: Text('add'.tr),
-                ),
-              ],
-            ),
-          );
-        },
-        child: const Icon(Icons.add),
       ),
     );
   }
