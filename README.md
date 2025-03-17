@@ -43,3 +43,17 @@ flutter run
 - Dart: 3.x
 - 데이터베이스: SQLite (sqflite)
 - 상태 관리: GetX
+
+## 사용자 지원
+
+문제가 발생하거나 새로운 기능을 제안하고 싶으시다면:
+
+1. [Issues](https://github.com/aproxacs/class_roster/issues)에 새로운 이슈를 등록해주세요.
+2. 이슈 등록 시 다음 내용을 포함해주시면 더 빠른 지원이 가능합니다:
+   - 문제가 발생한 상황 설명
+   - 스크린샷 (가능한 경우)
+   - 사용 중인 기기 정보 (iOS 버전 등)
+
+## 라이선스
+
+MIT License
