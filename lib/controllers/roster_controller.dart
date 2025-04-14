@@ -33,6 +33,7 @@ class RosterController extends GetxController {
         rosterId: savedRoster.id!,
         name: student.name,
         studentId: student.studentId,
+        phoneNumber: student.phoneNumber,
       );
       final savedStudent = await DatabaseService.instance.createRosterStudent(rosterStudent);
       _rosterStudents.add(savedStudent);
@@ -66,7 +67,12 @@ class RosterController extends GetxController {
   }
 
   Future<void> updateStudentStatus(RosterStudent student, AttendanceStatus status) async {
-    final updatedStudent = student.copyWith(status: status);
+    final updatedStudent = student.copyWith(
+      status: status,
+      name: student.name,
+      studentId: student.studentId,
+      phoneNumber: student.phoneNumber,
+    );
     await DatabaseService.instance.updateRosterStudent(updatedStudent);
     final index = _rosterStudents.indexWhere((s) => s.id == student.id);
     if (index != -1) {

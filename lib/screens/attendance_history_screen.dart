@@ -214,7 +214,6 @@ class AttendanceHistoryScreen extends StatelessWidget {
                       rosterController.selectRoster(roster);
                       Get.to(() => AttendanceScreen(
                             roster: roster,
-                            students: rosterController.rosterStudents,
                           ));
                     },
                   ),

@@ -47,6 +47,7 @@ class DatabaseService {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         student_id TEXT,
+        phone_number TEXT,
         group_id INTEGER NOT NULL,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (group_id) REFERENCES student_groups (id)
@@ -71,6 +72,7 @@ class DatabaseService {
         roster_id INTEGER NOT NULL,
         name TEXT NOT NULL,
         student_id TEXT,
+        phone_number TEXT,
         status TEXT NOT NULL DEFAULT 'absent',
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (roster_id) REFERENCES rosters (id)
@@ -80,8 +82,26 @@ class DatabaseService {
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 2) {
-      await db.execute('ALTER TABLE students ADD COLUMN phone_number TEXT');
+    try {
+      // 버전 1에서 2으로 업그레이드
+      if (oldVersion < 2) {
+        // students 테이블에 phone_number 컬럼이 없으면 추가
+        try {
+          await db.execute('ALTER TABLE students ADD COLUMN phone_number TEXT');
+        } catch (e) {
+          // 이미 컬럼이 존재하는 경우 무시
+        }
+        
+        // roster_students 테이블에 phone_number 컬럼이 없으면 추가
+        try {
+          await db.execute('ALTER TABLE roster_students ADD COLUMN phone_number TEXT');
+        } catch (e) {
+          // 이미 컬럼이 존재하는 경우 무시
+        }
+      }
+    } catch (e) {
+      // 업그레이드 중 오류가 발생하면 로그를 남기고 계속 진행
+      print('Database upgrade error: $e');
     }
   }
 

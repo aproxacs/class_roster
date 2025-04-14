@@ -47,5 +47,9 @@
 	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>학생 사진을 추가하고 관리하기 위해 사진 라이브러리 접근 권한이 필요합니다.</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>tel</string>
+	</array>
 </dict>
 </plist>

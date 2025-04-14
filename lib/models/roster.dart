@@ -70,6 +70,7 @@ class RosterStudent {
   final int rosterId;
   final String name;
   final String? studentId;
+  final String? phoneNumber;
   final AttendanceStatus status;
 
   RosterStudent({
@@ -77,6 +78,7 @@ class RosterStudent {
     required this.rosterId,
     required this.name,
     this.studentId,
+    this.phoneNumber,
     this.status = AttendanceStatus.absent,
   });
 
@@ -85,13 +87,15 @@ class RosterStudent {
     int? rosterId,
     String? name,
     String? studentId,
+    String? phoneNumber,
     AttendanceStatus? status,
   }) {
     return RosterStudent(
       id: id ?? this.id,
       rosterId: rosterId ?? this.rosterId,
       name: name ?? this.name,
-      studentId: studentId ?? this.studentId,
+      studentId: studentId,
+      phoneNumber: phoneNumber,
       status: status ?? this.status,
     );
   }
@@ -102,6 +106,7 @@ class RosterStudent {
       'roster_id': rosterId,
       'name': name,
       'student_id': studentId,
+      'phone_number': phoneNumber,
       'status': status.toString().split('.').last,
     };
   }
@@ -112,6 +117,7 @@ class RosterStudent {
       rosterId: map['roster_id'],
       name: map['name'],
       studentId: map['student_id'],
+      phoneNumber: map['phone_number'],
       status: AttendanceStatus.values.firstWhere(
         (e) => e.toString().split('.').last == map['status'],
         orElse: () => AttendanceStatus.absent,

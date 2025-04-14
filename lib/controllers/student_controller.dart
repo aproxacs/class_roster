@@ -64,18 +64,31 @@ class StudentController extends GetxController {
         allowMultiple: false,
       );
 
-      if (result != null) {
+      if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
         if (file.path != null) {
           final rows = await CsvService.instance.importStudentsFromCSV(file.path!);
           
+          if (rows.isEmpty) {
+            Get.snackbar(
+              '오류',
+              'CSV 파일이 비어있거나 올바른 형식이 아닙니다.',
+              snackPosition: SnackPosition.BOTTOM,
+            );
+            return;
+          }
+
           // 첫 번째 행은 헤더이므로 제외
           for (var i = 1; i < rows.length; i++) {
             final row = rows[i];
-            if (row.length >= 2) {
-              final name = row[0].toString();
-              final studentId = row.length > 1 && row[1].toString().isNotEmpty ? row[1].toString() : null;
-              final phoneNumber = row.length > 2 && row[2].toString().isNotEmpty ? row[2].toString() : null;
+            if (row.isNotEmpty && row[0].toString().trim().isNotEmpty) {
+              final name = row[0].toString().trim();
+              final studentId = row.length > 1 && row[1].toString().trim().isNotEmpty 
+                ? row[1].toString().trim() 
+                : null;
+              final phoneNumber = row.length > 2 && row[2].toString().trim().isNotEmpty 
+                ? row[2].toString().trim() 
+                : null;
               
               await addStudent(
                 name,
@@ -85,6 +98,9 @@ class StudentController extends GetxController {
               );
             }
           }
+
+          // 학생 목록을 다시 로드
+          await loadStudents(groupId);
 
           Get.snackbar(
             '알림',
@@ -96,7 +112,7 @@ class StudentController extends GetxController {
     } catch (e) {
       Get.snackbar(
         '오류',
-        'CSV 파일을 가져오는 중 오류가 발생했습니다.',
+        'CSV 파일을 가져오는 중 오류가 발생했습니다: ${e.toString()}',
         snackPosition: SnackPosition.BOTTOM,
       );
     }
