@@ -40,12 +40,13 @@ class CsvService {
     final file = File('${directory.path}/${groupName}_학생명단.csv');
 
     final List<List<dynamic>> rows = [];
-    rows.add(['이름', '학번']);
+    rows.add(['이름', '학번', '전화번호']);
 
     for (final student in students) {
       rows.add([
         student.name,
         student.studentId ?? '',
+        student.phoneNumber ?? '',
       ]);
     }
 

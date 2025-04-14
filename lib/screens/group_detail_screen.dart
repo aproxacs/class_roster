@@ -46,6 +46,8 @@ class GroupDetailScreen extends StatelessWidget {
             icon: const Icon(Icons.file_upload),
             onPressed: () async {
               await studentController.importStudentsFromCsv(group.id!);
+              // CSV 업로드 후 학생 목록을 다시 로드
+              studentController.loadStudents(group.id!);
             },
           ),
         ],
@@ -71,6 +73,7 @@ class GroupDetailScreen extends StatelessWidget {
                           onPressed: () {
                             final nameController = TextEditingController(text: student.name);
                             final studentIdController = TextEditingController(text: student.studentId);
+                            final phoneNumberController = TextEditingController(text: student.phoneNumber);
                             
                             Get.dialog(
                               AlertDialog(
@@ -93,6 +96,14 @@ class GroupDetailScreen extends StatelessWidget {
                                         hintText: 'enter_student_id'.tr,
                                       ),
                                     ),
+                                    const SizedBox(height: 8),
+                                    TextField(
+                                      controller: phoneNumberController,
+                                      decoration: InputDecoration(
+                                        labelText: '전화번호',
+                                        hintText: '전화번호를 입력하세요',
+                                      ),
+                                    ),
                                   ],
                                 ),
                                 actions: [
@@ -113,9 +124,12 @@ class GroupDetailScreen extends StatelessWidget {
                                       
                                       final updatedStudent = student.copyWith(
                                         name: nameController.text,
-                                        studentId: studentIdController.text.isEmpty
+                                        studentId: studentIdController.text.trim().isEmpty
                                             ? null
                                             : studentIdController.text,
+                                        phoneNumber: phoneNumberController.text.trim().isEmpty
+                                            ? null
+                                            : phoneNumberController.text,
                                       );
                                       
                                       studentController.updateStudent(updatedStudent);
@@ -168,6 +182,7 @@ class GroupDetailScreen extends StatelessWidget {
                     onPressed: () {
                       final nameController = TextEditingController();
                       final idController = TextEditingController();
+                      final phoneNumberController = TextEditingController();
                       
                       Get.dialog(
                         AlertDialog(
@@ -187,6 +202,12 @@ class GroupDetailScreen extends StatelessWidget {
                                   labelText: 'student_id_optional'.tr,
                                 ),
                               ),
+                              TextField(
+                                controller: phoneNumberController,
+                                decoration: InputDecoration(
+                                  labelText: '전화번호 (선택사항)',
+                                ),
+                              ),
                             ],
                           ),
                           actions: [
@@ -203,6 +224,9 @@ class GroupDetailScreen extends StatelessWidget {
                                     studentId: idController.text.isEmpty
                                         ? null
                                         : idController.text,
+                                    phoneNumber: phoneNumberController.text.isEmpty
+                                        ? null
+                                        : phoneNumberController.text,
                                   );
                                   Get.back();
                                 }

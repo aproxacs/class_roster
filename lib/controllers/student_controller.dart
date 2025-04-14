@@ -15,10 +15,11 @@ class StudentController extends GetxController {
     _students.assignAll(students);
   }
 
-  Future<void> addStudent(String name, int groupId, {String? studentId}) async {
+  Future<void> addStudent(String name, int groupId, {String? studentId, String? phoneNumber}) async {
     final student = Student(
       name: name,
       studentId: studentId,
+      phoneNumber: phoneNumber,
       groupId: groupId,
     );
     final savedStudent = await DatabaseService.instance.createStudent(student);
@@ -31,10 +32,15 @@ class StudentController extends GetxController {
   }
 
   Future<void> updateStudent(Student student) async {
-    await DatabaseService.instance.updateStudent(student);
+    // 학번이 빈 문자열이면 null로 설정
+    final updatedStudent = student.copyWith(
+      studentId: student.studentId?.trim().isEmpty ?? true ? null : student.studentId,
+      phoneNumber: student.phoneNumber?.trim().isEmpty ?? true ? null : student.phoneNumber,
+    );
+    await DatabaseService.instance.updateStudent(updatedStudent);
     final index = _students.indexWhere((s) => s.id == student.id);
     if (index != -1) {
-      _students[index] = student;
+      _students[index] = updatedStudent;
       _students.refresh();
     }
   }
@@ -68,9 +74,15 @@ class StudentController extends GetxController {
             final row = rows[i];
             if (row.length >= 2) {
               final name = row[0].toString();
-              final studentId = row[1].toString().isEmpty ? null : row[1].toString();
+              final studentId = row.length > 1 && row[1].toString().isNotEmpty ? row[1].toString() : null;
+              final phoneNumber = row.length > 2 && row[2].toString().isNotEmpty ? row[2].toString() : null;
               
-              await addStudent(name, groupId, studentId: studentId);
+              await addStudent(
+                name,
+                groupId,
+                studentId: studentId,
+                phoneNumber: phoneNumber,
+              );
             }
           }
 

@@ -6,7 +6,7 @@ class Messages extends Translations {
         'ko_KR': {
           'app_title': '출석부',
           'attendance': '출석부',
-          'student_groups': '학생 그룹',
+          'student_groups': '학생 관리',
           'new_group': '새 그룹 추가',
           'group_name': '그룹 이름',
           'description': '설명',
