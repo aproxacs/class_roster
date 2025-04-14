@@ -1,21 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/roster.dart';
 import '../controllers/roster_controller.dart';
+import '../models/roster.dart' as roster_model;
 
 class AttendanceScreen extends StatelessWidget {
   final Roster roster;
-  final List<RosterStudent> students;
 
   const AttendanceScreen({
     super.key,
     required this.roster,
-    required this.students,
   });
+
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
+    );
+    if (await canLaunch(launchUri.toString())) {
+      await launch(launchUri.toString());
+    } else {
+      Get.snackbar(
+        '오류',
+        '전화를 걸 수 없습니다.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<RosterController>();
+    final controller = Get.put(RosterController());
+    controller.loadRosterStudents(roster.id!);
 
     return Scaffold(
       appBar: AppBar(
@@ -24,29 +41,7 @@ class AttendanceScreen extends StatelessWidget {
         actions: [
           Obx(() {
             final currentRoster = controller.rosters.firstWhere((r) => r.id == roster.id);
-            return Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: currentRoster.status == RosterStatus.open ? Colors.blue : Colors.grey,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Center(
-                child: Text(
-                  currentRoster.status == RosterStatus.open
-                      ? 'in_progress'.tr
-                      : 'completed'.tr,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-            );
-          }),
-          Obx(() {
-            final currentRoster = controller.rosters.firstWhere((r) => r.id == roster.id);
-            if (currentRoster.status == RosterStatus.open) {
+            if (currentRoster.status == roster_model.RosterStatus.open) {
               return IconButton(
                 icon: const Icon(Icons.check),
                 onPressed: () {
@@ -76,7 +71,7 @@ class AttendanceScreen extends StatelessWidget {
           }),
           Obx(() {
             final currentRoster = controller.rosters.firstWhere((r) => r.id == roster.id);
-            if (currentRoster.status == RosterStatus.closed) {
+            if (currentRoster.status == roster_model.RosterStatus.closed) {
               return IconButton(
                 icon: const Icon(Icons.file_download),
                 onPressed: () {
@@ -95,8 +90,15 @@ class AttendanceScreen extends StatelessWidget {
           }),
         ],
       ),
-      body: Obx(
-        () => GridView.builder(
+      body: Obx(() {
+        final students = controller.rosterStudents;
+        if (students.isEmpty) {
+          return Center(
+            child: Text('no_students'.tr),
+          );
+        }
+
+        return GridView.builder(
           padding: const EdgeInsets.all(8),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 5,
@@ -108,11 +110,36 @@ class AttendanceScreen extends StatelessWidget {
           itemBuilder: (context, index) {
             final student = students[index];
             return GestureDetector(
-              onTap: roster.status == RosterStatus.open
+              onLongPress: () {
+                if (student.status == roster_model.AttendanceStatus.absent &&
+                    student.phoneNumber != null &&
+                    student.phoneNumber!.isNotEmpty) {
+                  Get.dialog(
+                    AlertDialog(
+                      title: const Text('전화 걸기'),
+                      content: Text('${student.name}(${student.phoneNumber})에게 전화를 걸까요?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Get.back(),
+                          child: const Text('취소'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Get.back();
+                            _makePhoneCall(student.phoneNumber!);
+                          },
+                          child: const Text('전화 걸기'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              },
+              onTap: roster.status == roster_model.RosterStatus.open
                   ? () {
-                      final newStatus = student.status == AttendanceStatus.absent
-                          ? AttendanceStatus.present
-                          : AttendanceStatus.absent;
+                      final newStatus = student.status == roster_model.AttendanceStatus.absent
+                          ? roster_model.AttendanceStatus.present
+                          : roster_model.AttendanceStatus.absent;
                       controller.updateStudentStatus(student, newStatus);
                     }
                   : null,
@@ -137,15 +164,28 @@ class AttendanceScreen extends StatelessWidget {
                     ),
                     if (student.studentId != null) ...[
                       const SizedBox(height: 2),
-                      Text(
-                        student.studentId!,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.white70,
-                        ),
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            student.studentId!,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.white70,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          if (student.phoneNumber != null && student.phoneNumber!.isNotEmpty) ...[
+                            const SizedBox(width: 4),
+                            const Icon(
+                              Icons.phone,
+                              size: 12,
+                              color: Colors.white70,
+                            ),
+                          ],
+                        ],
                       ),
                     ],
                     const SizedBox(height: 4),
@@ -168,34 +208,34 @@ class AttendanceScreen extends StatelessWidget {
               ),
             );
           },
-        ),
-      ),
+        );
+      }),
     );
   }
 
-  Color _getStatusColor(AttendanceStatus status) {
+  String _getStatusText(roster_model.AttendanceStatus status) {
     switch (status) {
-      case AttendanceStatus.present:
-        return Colors.green;
-      case AttendanceStatus.absent:
-        return Colors.red;
-      case AttendanceStatus.late:
-        return Colors.orange;
-      case AttendanceStatus.excused:
-        return Colors.blue;
+      case roster_model.AttendanceStatus.present:
+        return 'present'.tr;
+      case roster_model.AttendanceStatus.absent:
+        return 'absent'.tr;
+      case roster_model.AttendanceStatus.late:
+        return 'late'.tr;
+      case roster_model.AttendanceStatus.excused:
+        return 'excused'.tr;
     }
   }
 
-  String _getStatusText(AttendanceStatus status) {
+  Color _getStatusColor(roster_model.AttendanceStatus status) {
     switch (status) {
-      case AttendanceStatus.present:
-        return 'present'.tr;
-      case AttendanceStatus.absent:
-        return 'absent'.tr;
-      case AttendanceStatus.late:
-        return 'late'.tr;
-      case AttendanceStatus.excused:
-        return 'excused'.tr;
+      case roster_model.AttendanceStatus.present:
+        return Colors.green;
+      case roster_model.AttendanceStatus.absent:
+        return Colors.red;
+      case roster_model.AttendanceStatus.late:
+        return Colors.orange;
+      case roster_model.AttendanceStatus.excused:
+        return Colors.blue;
     }
   }
 } 
