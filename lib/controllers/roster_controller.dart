@@ -92,4 +92,23 @@ class RosterController extends GetxController {
     _selectedRoster.value = roster;
     loadRosterStudents(roster.id!);
   }
+
+  // 출석부 다시 시작
+  Future<void> restartRoster(int rosterId) async {
+    try {
+      final db = await DatabaseService.instance.database;
+      await db.update(
+        'rosters',
+        {
+          'status': 'in_progress',
+        },
+        where: 'id = ?',
+        whereArgs: [rosterId],
+      );
+      await loadRosters();
+    } catch (e) {
+      print('Error restarting roster: $e');
+      rethrow;
+    }
+  }
 } 

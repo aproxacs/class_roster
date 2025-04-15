@@ -100,18 +100,46 @@ class AttendanceScreen extends StatelessWidget {
               );
             }
             if (currentRoster.status == roster_model.RosterStatus.closed) {
-              return IconButton(
-                icon: const Icon(Icons.file_download),
-                onPressed: () {
-                  controller.exportRosterToCSV(
-                    '${roster.title}_${roster.date.toString().split(' ')[0]}',
-                  );
-                  Get.snackbar(
-                    'notification'.tr,
-                    'csv_downloaded'.tr,
-                    snackPosition: SnackPosition.BOTTOM,
-                  );
-                },
+              return Row(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      Get.dialog(
+                        AlertDialog(
+                          title: Text('출석부 다시 시작'.tr),
+                          content: Text('이 출석부를 다시 시작하시겠습니까?'.tr),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Get.back(),
+                              child: Text('취소'.tr),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                await controller.restartRoster(roster.id!);
+                                Get.back();
+                              },
+                              child: Text('확인'.tr),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.refresh),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.file_download),
+                    onPressed: () {
+                      controller.exportRosterToCSV(
+                        '${roster.title}_${roster.date.toString().split(' ')[0]}',
+                      );
+                      Get.snackbar(
+                        'notification'.tr,
+                        'csv_downloaded'.tr,
+                        snackPosition: SnackPosition.BOTTOM,
+                      );
+                    },
+                  ),
+                ],
               );
             }
             return const SizedBox.shrink();
@@ -168,12 +196,12 @@ class AttendanceScreen extends StatelessWidget {
                       value: sortBy.value,
                       items: const [
                         DropdownMenuItem(
-                          value: 'name',
-                          child: Text('이름'),
-                        ),
-                        DropdownMenuItem(
                           value: 'studentId',
                           child: Text('학번'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'name',
+                          child: Text('이름'),
                         ),
                         DropdownMenuItem(
                           value: 'status',
@@ -295,43 +323,43 @@ class AttendanceScreen extends StatelessWidget {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      student.studentId ?? "",
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.white70,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    if (student.status == roster_model.AttendanceStatus.absent &&
+                                        student.phoneNumber != null &&
+                                        student.phoneNumber!.isNotEmpty) ...[
+                                      const SizedBox(width: 4),
+                                      const Icon(
+                                        Icons.phone,
+                                        size: 12,
+                                        color: Colors.white70,
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
                                 Text(
                                   student.name,
                                   style: const TextStyle(
                                     fontSize: 16,
-                                    fontWeight: FontWeight.bold,
                                     color: Colors.white,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                   textAlign: TextAlign.center,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                                if (student.studentId != null) ...[
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        student.studentId!,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.white70,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      if (student.phoneNumber != null && student.phoneNumber!.isNotEmpty) ...[
-                                        const SizedBox(width: 4),
-                                        const Icon(
-                                          Icons.phone,
-                                          size: 12,
-                                          color: Colors.white70,
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                ],
                                 const SizedBox(height: 8),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
