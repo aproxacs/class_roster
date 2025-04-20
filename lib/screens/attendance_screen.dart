@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../models/roster.dart';
 import '../controllers/roster_controller.dart';
-import '../models/roster.dart' as roster_model;
+import '../models/roster.dart';
+import '../models/student.dart';
 
 class AttendanceScreen extends StatelessWidget {
   final Roster roster;
@@ -46,13 +46,13 @@ class AttendanceScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: currentRoster.status == roster_model.RosterStatus.open
+                  color: currentRoster.status == RosterStatus.open
                       ? Colors.blue
                       : Colors.grey,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  currentRoster.status == roster_model.RosterStatus.open
+                  currentRoster.status == RosterStatus.open
                       ? '진행 중'
                       : '종료됨',
                   style: const TextStyle(
@@ -69,7 +69,7 @@ class AttendanceScreen extends StatelessWidget {
         actions: [
           Obx(() {
             final currentRoster = controller.rosters.firstWhere((r) => r.id == roster.id);
-            if (currentRoster.status == roster_model.RosterStatus.open) {
+            if (currentRoster.status == RosterStatus.open) {
               return TextButton.icon(
                 onPressed: () {
                   Get.dialog(
@@ -99,7 +99,7 @@ class AttendanceScreen extends StatelessWidget {
                 ),
               );
             }
-            if (currentRoster.status == roster_model.RosterStatus.closed) {
+            if (currentRoster.status == RosterStatus.closed) {
               return Row(
                 children: [
                   IconButton(
@@ -256,133 +256,7 @@ class AttendanceScreen extends StatelessWidget {
                 itemCount: sortedStudents.length,
                 itemBuilder: (context, index) {
                   final student = sortedStudents[index];
-                  return GestureDetector(
-                    onLongPress: () {
-                      if (student.status == roster_model.AttendanceStatus.absent &&
-                          student.phoneNumber != null &&
-                          student.phoneNumber!.isNotEmpty) {
-                        Get.dialog(
-                          AlertDialog(
-                            title: const Text('전화 걸기'),
-                            content: Text('${student.name}(${student.phoneNumber})에게 전화를 걸까요?'),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Get.back(),
-                                child: const Text('취소'),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Get.back();
-                                  _makePhoneCall(student.phoneNumber!);
-                                },
-                                child: const Text('전화 걸기'),
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-                    },
-                    onTap: roster.status == roster_model.RosterStatus.open
-                        ? () {
-                            final newStatus = student.status == roster_model.AttendanceStatus.absent
-                                ? roster_model.AttendanceStatus.present
-                                : roster_model.AttendanceStatus.absent;
-                            controller.updateStudentStatus(student, newStatus);
-                          }
-                        : null,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: _getStatusGradient(student.status),
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(12),
-                          onTap: roster.status == roster_model.RosterStatus.open
-                              ? () {
-                                  final newStatus = student.status == roster_model.AttendanceStatus.absent
-                                      ? roster_model.AttendanceStatus.present
-                                      : roster_model.AttendanceStatus.absent;
-                                  controller.updateStudentStatus(student, newStatus);
-                                }
-                              : null,
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      student.studentId ?? "",
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.white70,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    if (student.status == roster_model.AttendanceStatus.absent &&
-                                        student.phoneNumber != null &&
-                                        student.phoneNumber!.isNotEmpty) ...[
-                                      const SizedBox(width: 4),
-                                      const Icon(
-                                        Icons.phone,
-                                        size: 12,
-                                        color: Colors.white70,
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  student.name,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text(
-                                    _getStatusText(student.status),
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
+                  return _buildStudentCard(student);
                 },
               );
             }),
@@ -392,41 +266,115 @@ class AttendanceScreen extends StatelessWidget {
     );
   }
 
-  String _getStatusText(roster_model.AttendanceStatus status) {
-    switch (status) {
-      case roster_model.AttendanceStatus.present:
-        return 'present'.tr;
-      case roster_model.AttendanceStatus.absent:
-        return 'absent'.tr;
-      case roster_model.AttendanceStatus.late:
-        return 'late'.tr;
-      case roster_model.AttendanceStatus.excused:
-        return 'excused'.tr;
-    }
+  Widget _buildStudentCard(RosterStudent student) {
+    return Card(
+      margin: const EdgeInsets.all(4.0),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: student.status == AttendanceStatus.present
+                ? [Colors.green.shade300, Colors.green.shade500]
+                : [Colors.red.shade300, Colors.red.shade500],
+          ),
+        ),
+        child: InkWell(
+          onTap: () => _toggleAttendance(student),
+          onLongPress: () => _showCallDialog(student),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              student.studentId ?? '',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (student.status == AttendanceStatus.absent && student.phoneNumber != null && student.phoneNumber!.isNotEmpty)
+                            const Icon(
+                              Icons.phone,
+                              color: Colors.white70,
+                              size: 16,
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        student.name,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.black26,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          student.status == AttendanceStatus.present ? '출석' : '결석',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
-  List<Color> _getStatusGradient(roster_model.AttendanceStatus status) {
-    switch (status) {
-      case roster_model.AttendanceStatus.present:
-        return [
-          const Color(0xFF4CAF50),
-          const Color(0xFF2E7D32),
-        ];
-      case roster_model.AttendanceStatus.absent:
-        return [
-          const Color(0xFFF44336),
-          const Color(0xFFC62828),
-        ];
-      case roster_model.AttendanceStatus.late:
-        return [
-          const Color(0xFFFF9800),
-          const Color(0xFFEF6C00),
-        ];
-      case roster_model.AttendanceStatus.excused:
-        return [
-          const Color(0xFF2196F3),
-          const Color(0xFF1565C0),
-        ];
+  void _toggleAttendance(RosterStudent student) {
+    final controller = Get.find<RosterController>();
+    final newStatus = student.status == AttendanceStatus.present 
+        ? AttendanceStatus.absent 
+        : AttendanceStatus.present;
+    controller.updateStudentStatus(student, newStatus);
+  }
+
+  void _showCallDialog(RosterStudent student) {
+    if (student.status == AttendanceStatus.absent && student.phoneNumber != null && student.phoneNumber!.isNotEmpty) {
+      Get.dialog(
+        AlertDialog(
+          title: const Text('전화 걸기'),
+          content: Text('${student.name}(${student.phoneNumber})에게 전화를 걸까요?'),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: const Text('취소'),
+            ),
+            TextButton(
+              onPressed: () {
+                Get.back();
+                _makePhoneCall(student.phoneNumber!);
+              },
+              child: const Text('전화 걸기'),
+            ),
+          ],
+        ),
+      );
     }
   }
 } 
